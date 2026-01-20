@@ -230,6 +230,10 @@ jobs:
 
       - name: Build UI
         run: |
+          # Make Ember CLI config writable
+          export XDG_CONFIG_HOME=$(pwd)/.config
+          mkdir -p $XDG_CONFIG_HOME/configstore
+          
           CONSUL_VERSION=${{ needs.set-product-version.outputs.product-version }}
           CONSUL_DATE=${{ needs.set-product-version.outputs.product-date }}
           CONSUL_BINARY_TYPE=${CONSUL_BINARY_TYPE}
