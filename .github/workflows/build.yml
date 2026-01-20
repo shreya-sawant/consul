@@ -244,6 +244,15 @@ jobs:
           cd ui && make && cd ..
           rm -rf agent/uiserver/dist
           mv ui/packages/consul-ui/dist agent/uiserver/
+      - name: Install Go for s390x
+        env:
+          GO_VERSION: ${{ needs.get-go-version.outputs.go-version }} 
+        run: |
+          wget -q https://go.dev/dl/go${GO_VERSION}.linux-s390x.tar.gz
+          sudo rm -rf /usr/local/go
+          sudo tar -C /usr/local -xzf go${GO_VERSION}.linux-s390x.tar.gz
+          export PATH=/usr/local/go/bin:$PATH
+          go version
       - name: Go Build
         env:
           PRODUCT_VERSION: ${{ needs.set-product-version.outputs.product-version }}
