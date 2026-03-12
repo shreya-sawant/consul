@@ -245,16 +245,23 @@ jobs:
           rm -rf agent/uiserver/dist
           mv ui/packages/consul-ui/dist agent/uiserver/
       - name: install Go on s390x 
+        if: matrix.goarch == 's390x'          # ← only run on s390x
         env:
-          GO_VERSION: ${{ needs.get-go-version.outputs.go-version }} 
+            GO_VERSION: ${{ needs.get-go-version.outputs.go-version }}
         run: |
-          curl -L https://go.dev/dl/go${GO_VERSION}.linux-s390x.tar.gz -o go.tar.gz
-          sudo tar -C /usr/local -xzf go.tar.gz
-          # Then add to the GitHub Actions tool cache so setup-go finds it
-          TOOL_CACHE=/opt/hostedtoolcache/go/${GO_VERSION}/s390x
-          sudo mkdir -p $TOOL_CACHE
-          sudo cp -r /usr/local/go/* $TOOL_CACHE/
-          sudo touch $TOOL_CACHE.complete
+            echo "Installing Go ${GO_VERSION} for s390x"
+            TOOL_CACHE=/opt/hostedtoolcache/go/${GO_VERSION}/s390x
+            # Only install if not already cached
+            if [ ! -f "${TOOL_CACHE}.complete" ]; then
+              curl -fsSL "https://go.dev/dl/go${GO_VERSION}.linux-s390x.tar.gz" \
+                | sudo tar -xz --strip-components=1 -C /tmp/go-s390x
+              sudo mkdir -p "${TOOL_CACHE}"
+              sudo cp -r /tmp/go-s390x/* "${TOOL_CACHE}/"
+              sudo touch "${TOOL_CACHE}.complete"
+            fi
+            # Verify the cache path looks right
+            echo "Cache path: ${TOOL_CACHE}"
+            ls "${TOOL_CACHE}/bin/go" && echo "Go binary found in cache"
       - name: Go Build
         env:
           PRODUCT_VERSION: ${{ needs.set-product-version.outputs.product-version }}
