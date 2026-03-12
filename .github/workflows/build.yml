@@ -244,6 +244,17 @@ jobs:
           cd ui && make && cd ..
           rm -rf agent/uiserver/dist
           mv ui/packages/consul-ui/dist agent/uiserver/
+      - name: install Go on s390x 
+        env:
+          GO_VERSION: ${{ needs.get-go-version.outputs.go-version }} 
+        run: |
+          curl -L https://go.dev/dl/go${GO_VERSION}.linux-s390x.tar.gz -o go.tar.gz
+          sudo tar -C /usr/local -xzf go.tar.gz
+          # Then add to the GitHub Actions tool cache so setup-go finds it
+          TOOL_CACHE=/opt/hostedtoolcache/go/${GO_VERSION}/s390x
+          sudo mkdir -p $TOOL_CACHE
+          sudo cp -r /usr/local/go/* $TOOL_CACHE/
+          sudo touch $TOOL_CACHE.complete
       - name: Go Build
         env:
           PRODUCT_VERSION: ${{ needs.set-product-version.outputs.product-version }}
