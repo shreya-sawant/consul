@@ -1153,10 +1153,14 @@ func (a *Agent) listenHTTP() ([]apiServer, error) {
 			a.configReloaders = append(a.configReloaders, srv.ReloadConfig)
 			a.httpHandlers = srv
 			httpServer := &http.Server{
-				Addr:           l.Addr().String(),
-				TLSConfig:      tlscfg,
-				Handler:        srv.handler(),
-				MaxHeaderBytes: a.config.HTTPMaxHeaderBytes,
+				Addr:              l.Addr().String(),
+				TLSConfig:         tlscfg,
+				Handler:           srv.handler(),
+				MaxHeaderBytes:    a.config.HTTPMaxHeaderBytes,
+				ReadHeaderTimeout: a.config.HTTPReadHeaderTimeout,
+				ReadTimeout:       a.config.HTTPReadTimeout,
+				WriteTimeout:      a.config.HTTPWriteTimeout,
+				IdleTimeout:       a.config.HTTPIdleTimeout,
 			}
 
 			// Load the connlimit helper into the server
@@ -1527,6 +1531,9 @@ func newConsulConfig(runtimeCfg *config.RuntimeConfig, logger hclog.Logger) (*co
 
 	cfg.DefaultQueryTime = runtimeCfg.DefaultQueryTime
 	cfg.MaxQueryTime = runtimeCfg.MaxQueryTime
+	if runtimeCfg.FederationStateAntiEntropySyncInterval > 0 {
+		cfg.FederationStateAntiEntropySyncInterval = runtimeCfg.FederationStateAntiEntropySyncInterval
+	}
 
 	cfg.AutoEncryptAllowTLS = runtimeCfg.AutoEncryptAllowTLS
 
