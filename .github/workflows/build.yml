@@ -247,7 +247,7 @@ jobs:
       - name: install Go on s390x 
         if: matrix.goarch == 's390x'          # ← only run on s390x
         env:
-            GO_VERSION: ${{ needs.get-go-version.outputs.go-version }}
+            GO_VERSION: "1.24.11"
         run: |
             echo "Installing Go ${GO_VERSION} for s390x"
             TOOL_CACHE=/opt/hostedtoolcache/go/${GO_VERSION}/s390x
